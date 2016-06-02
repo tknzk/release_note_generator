@@ -41,8 +41,6 @@ class ReleaseNoteGeneratorCLI < Thor
       lists << list
     end
 
-    lists.reverse!
-
     today = Date.today
     before = today - 6
 
