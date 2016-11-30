@@ -1,14 +1,17 @@
+# frozen_string_literal: true
 require 'thor'
 require 'dotenv'
 require 'github_api'
 
+# release note generator cli
 class ReleaseNoteGeneratorCLI < Thor
   Dotenv.load
 
-  desc "generate release_note", "generate release_note"
+  desc 'generate release_note', 'generate release_note'
 
   method_option :org_name, type: :string, required: true
   method_option :repository, type: :string, required: true
+
   def gen
     github = Github.new(basic_auth: ENV['GITHUB_ACCESS_TOKEN'])
 
@@ -30,7 +33,6 @@ class ReleaseNoteGeneratorCLI < Thor
       exit
     end
 
-
     lists = []
     pulls.each do |pr|
       break if pr['title'] =~ /リリースノート/
@@ -38,6 +40,8 @@ class ReleaseNoteGeneratorCLI < Thor
       list['number'] = pr['number']
       list['title'] = pr['title']
       list['url'] = pr['html_url']
+      # skip not merged
+      next if pr['merged_at'].nil?
       lists << list
     end
 
@@ -45,12 +49,12 @@ class ReleaseNoteGeneratorCLI < Thor
     before = today - 6
 
     puts "## #{today.strftime('%Y/%m/%d')}"
-    puts ""
-    puts "### 対象日"
+    puts ''
+    puts '### 対象日'
     puts "- #{before.strftime('%Y/%m/%d')} ~ #{today.strftime('%Y/%m/%d')}"
-    puts ""
-    puts "### 内容"
-    puts ""
+    puts ''
+    puts '### 内容'
+    puts ''
     lists.each do |list|
       puts "- #{list['title']}"
       puts "  - #{list['url']}"
